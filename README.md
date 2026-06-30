@@ -3,11 +3,17 @@
   <p align="center">
     <em>An AI-powered browser extension that adapts the web to how your brain works.</em>
   </p>
-  <p align="center">
-    <img src="https://img.shields.io/badge/chrome-extension-brightgreen" alt="Chrome Extension">
-    <img src="https://img.shields.io/badge/python-3.10+-blue" alt="Python 3.10+">
-    <img src="https://img.shields.io/badge/license-MIT-orange" alt="MIT License">
-  </p>
+<p align="center">
+  <a href="https://github.com/your-username/ClarityLens">
+    <img src="https://img.shields.io/badge/Chrome-Extension-brightgreen" alt="Chrome Extension">
+  </a>
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/Python-3.10%2B-blue" alt="Python 3.10+">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-orange" alt="MIT License">
+  </a>
+</p>
 </p>
 
 ---
