@@ -4,7 +4,7 @@
     <em>An AI-powered browser extension that adapts the web to how your brain works.</em>
   </p>
 <p align="center">
-  <a href="https://github.com/your-username/ClarityLens">
+  <a href="https://github.com/arjunaggarwaliit/ClarityLens">
     <img src="https://img.shields.io/badge/Chrome-Extension-brightgreen" alt="Chrome Extension">
   </a>
   <a href="https://www.python.org/">
