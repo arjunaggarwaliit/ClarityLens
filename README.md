@@ -364,7 +364,4 @@ All tunable values live in `extension/utils/constants.js`:
 
 ## License
 
-MIT License. See `LICENSE` for details.
-
-<p align="center">
-</p>
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
