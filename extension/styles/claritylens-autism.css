@@ -1,0 +1,85 @@
+
+html.claritylens-autism {
+  filter: saturate(0.65) !important; 
+}
+
+html.claritylens-autism img,
+html.claritylens-autism video,
+html.claritylens-autism canvas,
+html.claritylens-autism svg {
+  filter: saturate(1.54) !important; 
+}
+
+html.claritylens-autism *,
+html.claritylens-autism *::before,
+html.claritylens-autism *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001s !important;
+  scroll-behavior: auto !important;
+}
+
+html.claritylens-autism *:hover {
+  transform: none !important;
+  filter: none !important;
+}
+
+html.claritylens-autism a:hover {
+  text-decoration: underline !important;
+}
+
+html.claritylens-autism img {
+  aspect-ratio: attr(width) / attr(height) !important;
+}
+
+html.claritylens-autism *[style*="position: fixed"],
+html.claritylens-autism *[style*="position: sticky"] {
+  position: relative !important;
+}
+
+html.claritylens-autism video[autoplay],
+html.claritylens-autism audio[autoplay] {
+  display: none !important;
+}
+
+html.claritylens-autism main p,
+html.claritylens-autism article p,
+html.claritylens-autism [role="main"] p {
+  line-height: 1.9 !important;
+  letter-spacing: 0.01em !important;
+  max-width: 65ch !important;
+}
+
+html.claritylens-autism *[class*="blink"],
+html.claritylens-autism *[class*="pulse"],
+html.claritylens-autism *[class*="flash"],
+html.claritylens-autism *[class*="shake"],
+html.claritylens-autism *[class*="bounce"] {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+html.claritylens-autism * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+html.claritylens-autism main,
+html.claritylens-autism article,
+html.claritylens-autism .card,
+html.claritylens-autism [class*="card"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.claritylens-autism [class*="chat-widget"],
+html.claritylens-autism [class*="chatbot"],
+html.claritylens-autism [class*="intercom"],
+html.claritylens-autism [class*="drift"],
+html.claritylens-autism [class*="zendesk"],
+html.claritylens-autism [class*="crisp"],
+html.claritylens-autism [class*="tawk"],
+html.claritylens-autism [id*="chat-widget"],
+html.claritylens-autism [class*="notification-popup"],
+html.claritylens-autism [class*="toast"] {
+  display: none !important;
+}

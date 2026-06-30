@@ -1,0 +1,54 @@
+
+html.claritylens-active {
+  scroll-behavior: smooth !important;
+}
+
+html.claritylens-active body {
+  overflow-x: hidden !important;
+}
+
+html.claritylens-active *[style*="scroll-snap"] {
+  scroll-snap-type: none !important;
+}
+
+[data-claritylens-hidden="true"] {
+  display: none !important;
+}
+
+.claritylens-wall-of-text {
+  position: relative;
+}
+
+.claritylens-wall-of-text::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #EF9F27;
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+.claritylens-high-complexity {
+  position: relative;
+}
+
+.claritylens-high-complexity::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 4px;
+  width: 6px;
+  height: 6px;
+  background: #D85A30;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+html.claritylens-active [data-claritylens-hidden],
+html.claritylens-active [data-claritylens-deanimated],
+html.claritylens-active [data-claritylens-destickied] {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}

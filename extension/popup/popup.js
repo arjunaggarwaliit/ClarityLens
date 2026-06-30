@@ -1,0 +1,222 @@
+/**
+ * ClarityLens Popup Controller
+ * ===========================
+ * Handles UI interactions and communicates with content scripts + storage.
+ */
+
+(function () {
+  "use strict";
+
+  // ─── DOM References ─────────────────────────────────────────────
+  const powerBtn = document.getElementById("power-btn");
+  const casBefore = document.getElementById("cas-before");
+  const casAfter = document.getElementById("cas-after");
+  const statFixed = document.getElementById("stat-fixed");
+  const statSimplified = document.getElementById("stat-simplified");
+  const statBackend = document.getElementById("stat-backend");
+  const sensingData = document.getElementById("sensing-data");
+  const backendUrlInput = document.getElementById("backend-url");
+  const resetLearningBtn = document.getElementById("reset-learning-btn");
+  const revertLink = document.getElementById("revert-link");
+  const profileCheckboxes = document.querySelectorAll('input[name="profile"]');
+
+  // ─── State ──────────────────────────────────────────────────────
+  let isActive = false;
+  let currentProfiles = [];
+
+  // ─── Initialize ─────────────────────────────────────────────────
+  async function init() {
+    // Load saved settings
+    const settings = await new Promise(resolve => {
+      chrome.storage.local.get(
+        ["claritylens_active", "claritylens_profiles", "claritylens_backend_url"],
+        resolve
+      );
+    });
+
+    isActive = settings.claritylens_active !== false;
+    currentProfiles = settings.claritylens_profiles || [];
+    const backendUrl = settings.claritylens_backend_url || "http://localhost:8000";
+
+    // Update UI
+    powerBtn.classList.toggle("active", isActive);
+    document.body.classList.toggle("inactive", !isActive);
+    backendUrlInput.value = backendUrl;
+
+    // Set profile checkboxes
+    profileCheckboxes.forEach(cb => {
+      cb.checked = currentProfiles.includes(cb.value);
+      // Set CSS variable for accent color
+      const card = cb.closest(".profile-card");
+      if (cb.value === "adhd") card.style.setProperty("--accent", "#7F77DD");
+      if (cb.value === "autism") card.style.setProperty("--accent", "#1D9E75");
+      if (cb.value === "dyslexia") card.style.setProperty("--accent", "#D85A30");
+    });
+
+    // Get current tab status
+    requestStatus();
+
+    // Poll for updates
+    setInterval(requestStatus, 2000);
+  }
+
+  // ─── Request Status from Content Script ─────────────────────────
+  function requestStatus() {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) return;
+      chrome.tabs.sendMessage(tabs[0].id, { type: "GET_STATUS" }, (response) => {
+        if (chrome.runtime.lastError || !response) return;
+        updateUI(response);
+      });
+    });
+  }
+
+  // ─── Update UI with Status Data ─────────────────────────────────
+  function updateUI(data) {
+    // CAS scores
+    if (data.stats) {
+      const before = data.stats.casBefore;
+      const after = data.stats.casAfter;
+
+      casBefore.textContent = before > 0 ? before : "--";
+      casAfter.textContent = after > 0 ? after : "--";
+
+      casBefore.className = "cas-value" + (before === 0 ? " neutral" : "");
+      casAfter.className = "cas-value" + (after === 0 ? " neutral" : "");
+
+      // Stats
+      statFixed.textContent = data.stats.tier1Fixed || 0;
+      statSimplified.textContent = data.stats.disclosuresCreated || 0;
+
+      // Backend status
+      if (data.backendAvailable !== undefined) {
+        const dot = data.backendAvailable ? "online" : "offline";
+        const text = data.backendAvailable ? "Connected" : "Offline (client-only)";
+        statBackend.innerHTML = `<span class="status-dot ${dot}"></span> ${text}`;
+      }
+    }
+
+    // Sensing data (observational only — does NOT override manual profile selection)
+    if (data.sensing) {
+      const s = data.sensing;
+      sensingData.innerHTML = `
+        <div class="sensing-header" style="font-size:10px;color:#888;margin-bottom:4px;font-style:italic;">Behavioral signals (observational — your selected profile is what drives changes)</div>
+        <div class="sensing-grid">
+          <div class="sensing-item">
+            <span class="sensing-item-label">ADHD signal</span>
+            <span class="sensing-item-value">${(s.adhd * 100).toFixed(0)}%</span>
+          </div>
+          <div class="sensing-item">
+            <span class="sensing-item-label">Autism signal</span>
+            <span class="sensing-item-value">${(s.autism * 100).toFixed(0)}%</span>
+          </div>
+          <div class="sensing-item">
+            <span class="sensing-item-label">Dyslexia signal</span>
+            <span class="sensing-item-value">${(s.dyslexia * 100).toFixed(0)}%</span>
+          </div>
+          <div class="sensing-item">
+            <span class="sensing-item-label">Scroll speed</span>
+            <span class="sensing-item-value">${s.raw.avgScrollVelocity.toFixed(2)}</span>
+          </div>
+          <div class="sensing-item">
+            <span class="sensing-item-label">Re-reads</span>
+            <span class="sensing-item-value">${s.raw.scrollReversals}</span>
+          </div>
+          <div class="sensing-item">
+            <span class="sensing-item-label">Tab switches</span>
+            <span class="sensing-item-value">${s.raw.tabSwitchRate.toFixed(1)}/min</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // ─── Save Profiles and Notify ───────────────────────────────────
+  function saveAndApply() {
+    currentProfiles = Array.from(profileCheckboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+
+    chrome.storage.local.set({
+      claritylens_active: isActive,
+      claritylens_profiles: currentProfiles,
+      claritylens_backend_url: backendUrlInput.value
+    });
+
+    // Only send profiles to content script if power is ON.
+    // If power is OFF, don't send SET_PROFILES at all — the power button
+    // handler already sent REVERT_ALL or TOGGLE_ACTIVE.
+    if (isActive) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (!tabs[0]) return;
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "SET_PROFILES",
+          profiles: currentProfiles,
+          backendUrl: backendUrlInput.value
+        }).catch(() => {});
+      });
+    }
+  }
+
+  // ─── Event Listeners ───────────────────────────────────────────
+  powerBtn.addEventListener("click", () => {
+    isActive = !isActive;
+    powerBtn.classList.toggle("active", isActive);
+    document.body.classList.toggle("inactive", !isActive);
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) return;
+
+      if (!isActive) {
+        // Power OFF: deactivate everything
+        chrome.tabs.sendMessage(tabs[0].id, { type: "REVERT_ALL" }).catch(() => {});
+      } else {
+        // Power ON: activate with current profiles
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "SET_PROFILES",
+          profiles: Array.from(profileCheckboxes).filter(cb => cb.checked).map(cb => cb.value),
+          backendUrl: backendUrlInput.value
+        }).catch(() => {});
+      }
+    });
+
+    // Save state (but don't send SET_PROFILES again — handled above)
+    chrome.storage.local.set({
+      claritylens_active: isActive,
+      claritylens_profiles: currentProfiles,
+      claritylens_backend_url: backendUrlInput.value
+    });
+  });
+
+  profileCheckboxes.forEach(cb => {
+    cb.addEventListener("change", saveAndApply);
+  });
+
+  backendUrlInput.addEventListener("change", saveAndApply);
+
+  resetLearningBtn.addEventListener("click", () => {
+    if (confirm("Reset all learning data? The extension will start fresh.")) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          chrome.tabs.sendMessage(tabs[0].id, { type: "RESET_LEARNING" }).catch(() => {});
+        }
+      });
+    }
+  });
+
+  revertLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "REVERT_ALL" }).catch(() => {});
+      }
+    });
+    casBefore.textContent = "--";
+    casAfter.textContent = "--";
+    statFixed.textContent = "0";
+    statSimplified.textContent = "0";
+  });
+
+  // ─── Init ───────────────────────────────────────────────────────
+  init();
+})();

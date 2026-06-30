@@ -1,0 +1,68 @@
+html.claritylens-adhd body > *:not(main):not(article):not([role="main"]):not(script):not(style):not(link):not(.claritylens-disclosure-wrapper) {
+  opacity: 0.3 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+html.claritylens-adhd body > *:not(main):not(article):not([role="main"]):not(script):not(style):not(link):hover {
+  opacity: 1 !important;
+}
+
+/* Keep main content fully visible */
+html.claritylens-adhd main,
+html.claritylens-adhd article,
+html.claritylens-adhd [role="main"] {
+  opacity: 1 !important;
+}
+
+html.claritylens-adhd *[style*="animation-iteration-count: infinite"],
+html.claritylens-adhd *[class*="marquee"],
+html.claritylens-adhd *[class*="ticker"],
+html.claritylens-adhd *[class*="carousel"]:not(main *),
+html.claritylens-adhd *[class*="slider"]:not(main *) {
+  animation: none !important;
+  transition: none !important;
+}
+
+html.claritylens-adhd *[class*="badge"],
+html.claritylens-adhd *[class*="notification-count"],
+html.claritylens-adhd *[class*="unread"] {
+  animation: none !important;
+  opacity: 0.5 !important;
+}
+
+html.claritylens-adhd main p,
+html.claritylens-adhd article p,
+html.claritylens-adhd [role="main"] p {
+  max-width: 70ch !important;
+  line-height: 1.8 !important;
+  margin-bottom: 1.2em !important;
+}
+
+html.claritylens-adhd main p:hover,
+html.claritylens-adhd article p:hover {
+  background: rgba(127, 119, 221, 0.05) !important;
+  border-radius: 4px !important;
+  padding-left: 8px !important;
+  margin-left: -8px !important;
+  border-left: 2px solid rgba(127, 119, 221, 0.3) !important;
+}
+
+html.claritylens-adhd [class*="related"],
+html.claritylens-adhd [class*="recommended"],
+html.claritylens-adhd [class*="trending"],
+html.claritylens-adhd [class*="popular"],
+html.claritylens-adhd [class*="you-may-also"],
+html.claritylens-adhd [class*="more-stories"] {
+  display: none !important;
+}
+
+html.claritylens-adhd footer {
+  opacity: 0.2 !important;
+  max-height: 100px !important;
+  overflow: hidden !important;
+}
+
+html.claritylens-adhd footer:hover {
+  opacity: 1 !important;
+  max-height: none !important;
+}
